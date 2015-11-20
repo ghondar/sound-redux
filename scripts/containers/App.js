@@ -21,6 +21,8 @@ class App extends Component {
         dispatch(initEnvironment());
         dispatch(initAuth());
         dispatch(initNavigator());
+
+        Notification.requestPermission();
     }
 
     renderContent() {

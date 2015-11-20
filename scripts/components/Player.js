@@ -8,6 +8,7 @@ import {CHANGE_TYPES} from '../constants/SongConstants';
 import {formatSeconds, formatStreamUrl} from '../utils/FormatUtils';
 import {offsetLeft} from '../utils/MouseUtils';
 import {getImageUrl} from '../utils/SongUtils';
+import {formatSongTitle} from '../utils/FormatUtils';
 
 class Player extends Component {
     constructor(props) {
@@ -40,6 +41,7 @@ class Player extends Component {
             duration: 0,
             isSeeking: false,
             muted: false,
+            notification: null,
             repeat: false,
             shuffle: false,
             volume: 1,
@@ -122,10 +124,30 @@ class Player extends Component {
     }
 
     handleLoadStart() {
-        const {dispatch} = this.props;
+        const {dispatch, songs, users, playingSongId} = this.props;
+        const {notification} = this.state;
+
+        const song = songs[playingSongId];
+        const user = users[song.user_id];
+
+        const parsedTitle = formatSongTitle(song.title);
+
+        if(notification){
+            notification.close();
+        }
+
+        const notif = new Notification(user.username, {
+            icon: song.artwork_url,
+            body: parsedTitle.length <= 35 ? parsedTitle : `${parsedTitle.substr(0, 35)}...`
+        })
+        setTimeout(function(){
+            notif.close();
+        }, 5000);
+
         dispatch(changeCurrentTime(0));
         this.setState({
-            duration: 0
+            duration: 0,
+            notification: notif
         });
     }
 
